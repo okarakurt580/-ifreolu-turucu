@@ -1,0 +1,85 @@
+import discord
+import os
+from discord.ext import commands
+from sifre import sifre_olusturucu
+
+# Atık ayrıştırma sınıfı
+class AtikAyiriciBot:
+    def __init__(self):
+        self.geri_donusturulabilir = {
+            'kağıt': ['gazeteler', 'dergiler', 'karton', 'defterler'],
+            'plastik': ['plastik_siseler', 'plastik_kaplar', 'plastik_posetler'],
+            'metal': ['aluminyum_kutular', 'metal_kutular', 'aluminyum_folyo'],
+            'cam': ['cam_siseler', 'cam_kavanozlar']
+        }
+        self.çöpe_atılacak = ['kirli_kagitlar', 'plastik_tabaklar', 'yemek_artiklari', 'eski_elektronikler', 'piller']
+        self.kompost = ['meyve_artiklari', 'sebze_artiklari', 'yumurta_kabuklari', 'kahve_telvesi', 'yapraklar', 'cimenler']
+
+    def atik_siniflandir(self, esya):
+        esya = esya.lower().replace(" ", "_")  # Karakterleri normalize etme
+
+        if esya in self.geri_donusturulabilir['kağıt']:
+            return f"Bu eşya kağıt geri dönüşüm kutusuna atılmalıdır. Malzemeler: {', '.join(self.geri_donusturulabilir['kağıt'])}"
+        elif esya in self.geri_donusturulabilir['plastik']:
+            return f"Bu eşya plastik geri dönüşüm kutusuna atılmalıdır. Malzemeler: {', '.join(self.geri_donusturulabilir['plastik'])}"
+        elif esya in self.geri_donusturulabilir['metal']:
+            return f"Bu eşya metal geri dönüşüm kutusuna atılmalıdır. Malzemeler: {', '.join(self.geri_donusturulabilir['metal'])}"
+        elif esya in self.geri_donusturulabilir['cam']:
+            return f"Bu eşya cam geri dönüşüm kutusuna atılmalıdır. Malzemeler: {', '.join(self.geri_donusturulabilir['cam'])}"
+        elif esya in self.çöpe_atılacak:
+            return "Bu eşya çöpe atılmalıdır."
+        elif esya in self.kompost:
+            return "Bu eşya kompost kutusuna atılmalıdır."
+        else:
+            return "Üzgünüm, bu eşyayı tanımıyorum. Lütfen etiketlere bakın ve doğru şekilde atın."
+
+# Discord botu kısmı
+intents = discord.Intents.default()
+intents.message_content = True
+
+discord_bot = commands.Bot(command_prefix='$', intents=intents)
+
+# Atık ayrıştırma botunun örneğini oluşturuyoruz
+atik_bot = AtikAyiriciBot()
+
+@discord_bot.event
+async def on_ready():
+    print(f'{discord_bot.user} olarak giriş yaptık')
+
+@discord_bot.command()
+async def hello(ctx):
+    await ctx.send(f'Merhaba! Ben {discord_bot.user}, bir Discord sohbet botuyum!')
+
+@discord_bot.command()
+async def heh(ctx, count_heh = 5):
+    await ctx.send("he" * count_heh)
+
+@discord_bot.command()
+async def sifre(ctx):
+    await ctx.send(sifre_olusturucu())
+
+@discord_bot.command()
+async def atik_siniflandir(ctx, esya: str = None):
+    if esya is None:
+        await ctx.send("Lütfen bir eşya adı girin. Örneğin: `$atik_siniflandir plastik_siseler`")
+    else:
+        # Kullanıcıdan alınan atık türünü sınıflandırma
+        sonuc = atik_bot.atik_siniflandir(esya)
+        await ctx.send(sonuc)
+
+@discord_bot.command()
+async def resim(ctx):
+    # 'images' klasörünün var olup olmadığını kontrol et
+    if os.path.exists("images"):
+        image_list = os.listdir("images")
+        if image_list:
+            with open(f"images/{image_list[0]}", "rb") as f:  # İlk resmi gönder
+                picture = discord.File(f)
+            await ctx.send(file=picture)
+        else:
+            await ctx.send("Resim bulunamadı, lütfen 'images' klasörüne bir resim ekleyin.")
+    else:
+        await ctx.send("Resim dosyalarını içeren 'images' klasörü bulunamadı. Lütfen klasörü oluşturun.")
+
+# Botu çalıştırıyoruz
+
