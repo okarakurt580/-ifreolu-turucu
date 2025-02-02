@@ -13,19 +13,20 @@ def hello_world():
 
 @app.route("/ikincisayfa")
 def ikinci_sayfa():
-    return "<h1>hoşgeldin sayfaya ikinci </h1>  <a href='/'>ana sayfaya gidin </a> "
+    return "<h1>hoşgeldin sayfaya ikinci </h1>  <a href='/'>ana sayfaya gidin </a>,<a href='/rastgele bilgiler'>random bilgiler </a> ,<a href='/yazi-tura'>para vakti </a>  "
 
 @app.route("/rastgele bilgiler")
 def rastgelebilgiler():
     rastgele_bilgi= random.choice(rastgele)
-    return f"<h1>{rastgele_bilgi} <h1>  <a href='/'>ana sayfaya gidin </a> "
+    return f"<h1>{rastgele_bilgi} <h1>  <a href='/'>ana sayfaya gidin </a>,<a href='/ikincisayfa'>ikinci sayfa</a> ,<a href='/yazi-tura'>para vakti </a>  "
 
 @app.route("/yazi-tura")
 def yazi_tura():
     sonuc = random.choice(["Yazı", "Tura"])
     return f"""
     <h1>Sonuç: {sonuc}</h1>
-    <a href='/'>Ana sayfaya gidin</a>
+    <a href='/'>Ana sayfaya gidin</a>, <a href='/ikincisayfa'>İkinci sayfaya gidin </a> ,<a href='/rastgele bilgiler'>random bilgiler  </a>
     """
 
 app.run(debug=True)
+
